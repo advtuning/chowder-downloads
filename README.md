@@ -2,7 +2,7 @@
 
 Public test downloads for Chowder by Clarity Soft.
 
-## Apple Silicon macOS test build
+## Apple Silicon macOS test build (`0.1.3-test`)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/advtuning/chowder-downloads/main/install-macos.sh | bash
