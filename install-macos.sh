@@ -7,7 +7,29 @@ url="https://github.com/advtuning/chowder-downloads/releases/download/v${version
 sha256="bd70eb02cc8b9c75d512b572c538fc3b128fd6647ddd60cf3476d21d05ce58ad"
 
 [[ "$(uname -s)" == "Darwin" ]] || { echo "Chowder for macOS must be installed on a Mac." >&2; exit 1; }
-[[ "$(uname -m)" == "arm64" ]] || { echo "This build requires an Apple Silicon Mac." >&2; exit 1; }
+
+is_apple_silicon() {
+  local machine translated arm64_capable
+
+  machine="$(uname -m)"
+  [[ "$machine" == "arm64" ]] && return 0
+
+  # A Terminal launched with Rosetta reports x86_64 even on Apple Silicon.
+  # sysctl.proc_translated is Apple's supported way to identify that state;
+  # hw.optional.arm64 is a hardware-capability fallback for other translated shells.
+  translated="$(sysctl -in sysctl.proc_translated 2>/dev/null || true)"
+  [[ "$translated" == "1" ]] && return 0
+
+  arm64_capable="$(sysctl -n hw.optional.arm64 2>/dev/null || true)"
+  [[ "$arm64_capable" == "1" ]] && return 0
+
+  return 1
+}
+
+is_apple_silicon || { echo "This build requires an Apple Silicon Mac." >&2; exit 1; }
+
+# Used only by the deterministic architecture checks in this repository.
+[[ "${CHOWDER_ARCH_CHECK_ONLY:-0}" == "1" ]] && exit 0
 
 # Verify Chowder before installing prerequisites so a missing release cannot leave
 # the Mac with a partial ClamAV-only installation.
