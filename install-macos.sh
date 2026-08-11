@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version="0.1.0-test"
+version="0.1.3-test"
 asset="chowder-osx-arm64-${version}.app.tar.gz"
 url="https://github.com/advtuning/chowder-downloads/releases/download/v${version}/${asset}"
-sha256="9a7d4e5bd7918c5d720d2a68eae9bf5d8aca0e81c682127f717b93605b146a9c"
+sha256="bd70eb02cc8b9c75d512b572c538fc3b128fd6647ddd60cf3476d21d05ce58ad"
 
 [[ "$(uname -s)" == "Darwin" ]] || { echo "Chowder for macOS must be installed on a Mac." >&2; exit 1; }
 [[ "$(uname -m)" == "arm64" ]] || { echo "This build requires an Apple Silicon Mac." >&2; exit 1; }
