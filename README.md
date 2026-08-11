@@ -1,18 +1,39 @@
 # Chowder downloads
 
-Public test downloads for Chowder by Clarity Soft.
+Public test downloads for the Chowder malware-scanning GUI by Clarity Soft. These are prerelease
+evaluation builds. They are not production releases, and native validation is still in progress.
 
 ## Windows x64 portable GUI (`0.1.4-test`)
 
-Download either the [self-extracting EXE](https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/Chowder-Standard-Portable-0.1.4-test-win-x64.exe) or the [portable ZIP](https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/Chowder-Standard-Portable-0.1.4-test-win-x64.zip). The adjacent `.sha256` files are available on the [release page](https://github.com/advtuning/chowder-downloads/releases/tag/v0.1.4-test).
+Download and launch the self-extracting portable EXE from PowerShell:
+
+```powershell
+Invoke-WebRequest 'https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/Chowder-Standard-Portable-0.1.4-test-win-x64.exe' -OutFile 'Chowder-Standard-Portable-0.1.4-test-win-x64.exe'; .\Chowder-Standard-Portable-0.1.4-test-win-x64.exe
+```
+
+Or download, extract, and launch the portable ZIP:
+
+```powershell
+Invoke-WebRequest 'https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/Chowder-Standard-Portable-0.1.4-test-win-x64.zip' -OutFile 'Chowder-Standard-Portable-0.1.4-test-win-x64.zip'; Expand-Archive '.\Chowder-Standard-Portable-0.1.4-test-win-x64.zip' -DestinationPath '.\Chowder-Standard-Portable'; Start-Process '.\Chowder-Standard-Portable\Chowder\Chowder.exe'
+```
+
+Published SHA-256 values:
+
+```text
+e841cd639f5595d86a92424296dfdcb2e4aaf1dc8772fe4b29b03e38cba2faab  Chowder-Standard-Portable-0.1.4-test-win-x64.exe
+d88555fd9e6958acc1532a988892922116c0217bf0f56e083a8e7350c2980454  Chowder-Standard-Portable-0.1.4-test-win-x64.zip
+```
+
+The downloadable `.sha256` sidecars are on the [0.1.4 test release page](https://github.com/advtuning/chowder-downloads/releases/tag/v0.1.4-test).
 
 This is the free Chowder Standard desktop GUI. It stores its data beside the application and does
-not install a Windows service. The official ClamAV engine must be installed separately. These test
-binaries are unsigned, so Windows may show a reputation warning.
+not install a Windows service. The official ClamAV engine must be installed separately. Both test
+formats are unsigned, so Windows may show a reputation warning.
 
 ## Ubuntu and Debian GUI (`0.1.4-test`)
 
-The signed APT repository installs Chowder and declares ClamAV as a package dependency:
+The signed APT repository provides the `0.1.4-test` GUI for amd64 and arm64 and installs ClamAV as
+a package dependency:
 
 ```bash
 curl -fsSL https://advtuning.github.io/chowder-apt/install.sh | bash
@@ -23,15 +44,28 @@ also supplies the scheduled definition-update integration used by Chowder.
 
 ## RPM-family Linux GUI (`0.1.4-test`)
 
-Download the matching [x64 or arm64 RPM and checksum](https://github.com/advtuning/chowder-downloads/releases/tag/v0.1.4-test), verify the checksum, then install the local package with your distribution's package manager. For example:
+Download, verify, and install the x64 RPM:
 
 ```bash
-sha256sum -c chowder-linux-x64-0.1.4-test.rpm.sha256
-sudo dnf install ./chowder-linux-x64-0.1.4-test.rpm
+curl -fLO https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/chowder-linux-x64-0.1.4-test.rpm -fLO https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/chowder-linux-x64-0.1.4-test.rpm.sha256 && sha256sum -c chowder-linux-x64-0.1.4-test.rpm.sha256 && sudo dnf install ./chowder-linux-x64-0.1.4-test.rpm
 ```
 
-Use `chowder-linux-arm64-0.1.4-test.rpm` on arm64. These RPM test packages are not signed and are
-not yet distributed through a signed RPM repository. Their package dependencies install ClamAV.
+Use this one-liner on arm64:
+
+```bash
+curl -fLO https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/chowder-linux-arm64-0.1.4-test.rpm -fLO https://github.com/advtuning/chowder-downloads/releases/download/v0.1.4-test/chowder-linux-arm64-0.1.4-test.rpm.sha256 && sha256sum -c chowder-linux-arm64-0.1.4-test.rpm.sha256 && sudo dnf install ./chowder-linux-arm64-0.1.4-test.rpm
+```
+
+Published SHA-256 values:
+
+```text
+d6f0facd7e8d5801bf3a576de60820e46f67905e9b8e8b1ad30a89cf01571ade  chowder-linux-x64-0.1.4-test.rpm
+7ea9740fb72acf85ada5ad73fa9de7df2ea3b21bb269970c5cb1e79ea9ce3498  chowder-linux-arm64-0.1.4-test.rpm
+```
+
+These RPM test packages are not signed and are not distributed through a signed RPM repository.
+Their package dependencies install ClamAV. Native RPM-family and physical arm64 validation remain
+release gates; publication here does not claim those gates have passed.
 
 ## Apple Silicon macOS test build (`0.1.3-test`)
 
@@ -39,13 +73,15 @@ not yet distributed through a signed RPM repository. Their package dependencies 
 curl -fsSL https://raw.githubusercontent.com/advtuning/chowder-downloads/main/install-macos.sh | bash
 ```
 
-The installer verifies Apple Silicon and downloads/verifies Chowder before changing the Mac. It then
-installs Homebrew and ClamAV when required, creates the minimum `freshclam.conf`, initialises the
-signature database, installs `Chowder.app` into `/Applications`, and launches it.
+The installer accepts native Apple Silicon terminals and terminals running under Rosetta on Apple
+Silicon; it still rejects Intel-only Macs. It downloads and verifies Chowder before changing the Mac. It then
+installs Homebrew and ClamAV when required, creates a working `freshclam.conf` from Homebrew's
+sample, initialises the signature database, installs `Chowder.app` into `/Applications`, and launches it.
 
-The archive's independently verifiable [SHA-256 sidecar](https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-osx-arm64-0.1.3-test.app.tar.gz.sha256)
+The archive's published [SHA-256 sidecar](https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-osx-arm64-0.1.3-test.app.tar.gz.sha256)
 uses the same checksum enforced by the installer.
 
 This is an unsigned and unnotarised test build. Public production distribution will replace it
-with a Developer ID-signed and Apple-notarised package.
+with a Developer ID-signed and Apple-notarised package. Physical Apple Silicon validation remains a
+release gate; the installer and published archive do not by themselves prove that gate complete.
 
