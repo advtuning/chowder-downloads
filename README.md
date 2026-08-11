@@ -43,6 +43,9 @@ The installer verifies Apple Silicon and downloads/verifies Chowder before chang
 installs Homebrew and ClamAV when required, creates the minimum `freshclam.conf`, initialises the
 signature database, installs `Chowder.app` into `/Applications`, and launches it.
 
+The archive's independently verifiable [SHA-256 sidecar](https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-osx-arm64-0.1.3-test.app.tar.gz.sha256)
+uses the same checksum enforced by the installer.
+
 This is an unsigned and unnotarised test build. Public production distribution will replace it
 with a Developer ID-signed and Apple-notarised package.
 
