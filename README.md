@@ -15,7 +15,7 @@ d="$(mktemp -d "${TMPDIR:-/tmp}/chowder-desk003.XXXXXX")" && (trap 'rm -rf "$d"'
 ```
 
 The required result is `PASS 14/14`. The archive SHA-256 is
-`b0588744e8ab202d524ce10173a2d41e02dc0f7963ea24a6ccb6eb236ad23c7c`.
+`d187a7a0c458b17b5a49dcc77d700b721b3c6297d23dbe96cc3ab8e6bd2d65d2`.
 
 ## Windows x64 portable GUI (`0.1.4-test`)
 
