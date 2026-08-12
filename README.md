@@ -3,6 +3,20 @@
 Public test downloads for the Chowder malware-scanning GUI by Clarity Soft. These are prerelease
 evaluation builds. They are not production releases, and native validation is still in progress.
 
+## Apple Silicon DESK-003 native evidence test
+
+This temporary test-only bundle exercises the 14 shared history/quarantine filesystem checks needed
+for DESK-003 evidence. It is not the Chowder application or a customer release.
+
+Run this on an Apple Silicon Mac:
+
+```bash
+cd "$(mktemp -d)" && curl -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz.sha256 && shasum -a 256 -c chowder-desk003-macos-arm64.tar.gz.sha256 && d="$(mktemp -d "${TMPDIR:-/tmp}/chowder-desk003.XXXXXX")" && (trap 'rm -rf "$d"' EXIT HUP INT TERM; tar -xzf chowder-desk003-macos-arm64.tar.gz -C "$d" && test "$(uname -m)" = arm64 && chmod 0700 "$d/chowder-desk003-native-tests" && (xattr -d com.apple.quarantine "$d/chowder-desk003-native-tests" 2>/dev/null || true) && "$d/chowder-desk003-native-tests")
+```
+
+The required result is `PASS 14/14`. The archive SHA-256 is
+`b0588744e8ab202d524ce10173a2d41e02dc0f7963ea24a6ccb6eb236ad23c7c`.
+
 ## Windows x64 portable GUI (`0.1.4-test`)
 
 Download and launch the self-extracting portable EXE from PowerShell:
