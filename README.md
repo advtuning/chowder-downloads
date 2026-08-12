@@ -3,19 +3,20 @@
 Public test downloads for the Chowder malware-scanning GUI by Clarity Soft. These are prerelease
 evaluation builds. They are not production releases, and native validation is still in progress.
 
-## Apple Silicon DESK-003 native evidence test
+## Apple Silicon DESK-003 cancellation diagnostic
 
-This temporary test-only bundle exercises the 14 shared history/quarantine filesystem checks needed
-for DESK-003 evidence. It is not the Chowder application or a customer release.
+This temporary test-only bundle runs 17 named history/quarantine checks. Its four cancellation
+boundaries are separated so a native failure identifies the exact stage. It is not the Chowder
+application or a customer release.
 
 Run this on an Apple Silicon Mac:
 
 ```bash
-d="$(mktemp -d "${TMPDIR:-/tmp}/chowder-desk003.XXXXXX")" && (trap 'rm -rf "$d"' EXIT HUP INT TERM; cd "$d" && curl -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz.sha256 && shasum -a 256 -c chowder-desk003-macos-arm64.tar.gz.sha256 && mkdir run && tar -xzf chowder-desk003-macos-arm64.tar.gz -C run && test "$(uname -m)" = arm64 && chmod 0700 run/chowder-desk003-native-tests && (xattr -d com.apple.quarantine run/chowder-desk003-native-tests 2>/dev/null || true) && run/chowder-desk003-native-tests)
+d="$(mktemp -d "${TMPDIR:-/tmp}/chowder-desk003.XXXXXX")" && (trap 'rm -rf "$d"' EXIT HUP INT TERM; cd "$d" && curl -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz.sha256 && shasum -a 256 -c chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz.sha256 && mkdir run && tar -xzf chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz -C run && test "$(uname -m)" = arm64 && chmod 0700 run/chowder-desk003-native-tests && (xattr -d com.apple.quarantine run/chowder-desk003-native-tests 2>/dev/null || true) && run/chowder-desk003-native-tests)
 ```
 
-The required result is `PASS 14/14`. The archive SHA-256 is
-`d187a7a0c458b17b5a49dcc77d700b721b3c6297d23dbe96cc3ab8e6bd2d65d2`.
+The required result is `PASS 17/17`. The archive SHA-256 is
+`d0f0300928d4147d8009f9253c9a2889898ab21f26c80af1ecbcf3aa20399bc1`.
 
 ## Windows x64 portable GUI (`0.1.4-test`)
 
