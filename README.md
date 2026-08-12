@@ -11,7 +11,7 @@ for DESK-003 evidence. It is not the Chowder application or a customer release.
 Run this on an Apple Silicon Mac:
 
 ```bash
-cd "$(mktemp -d)" && curl -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz.sha256 && shasum -a 256 -c chowder-desk003-macos-arm64.tar.gz.sha256 && d="$(mktemp -d "${TMPDIR:-/tmp}/chowder-desk003.XXXXXX")" && (trap 'rm -rf "$d"' EXIT HUP INT TERM; tar -xzf chowder-desk003-macos-arm64.tar.gz -C "$d" && test "$(uname -m)" = arm64 && chmod 0700 "$d/chowder-desk003-native-tests" && (xattr -d com.apple.quarantine "$d/chowder-desk003-native-tests" 2>/dev/null || true) && "$d/chowder-desk003-native-tests")
+d="$(mktemp -d "${TMPDIR:-/tmp}/chowder-desk003.XXXXXX")" && (trap 'rm -rf "$d"' EXIT HUP INT TERM; cd "$d" && curl -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-macos-arm64.tar.gz.sha256 && shasum -a 256 -c chowder-desk003-macos-arm64.tar.gz.sha256 && mkdir run && tar -xzf chowder-desk003-macos-arm64.tar.gz -C run && test "$(uname -m)" = arm64 && chmod 0700 run/chowder-desk003-native-tests && (xattr -d com.apple.quarantine run/chowder-desk003-native-tests 2>/dev/null || true) && run/chowder-desk003-native-tests)
 ```
 
 The required result is `PASS 14/14`. The archive SHA-256 is
