@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version="0.1.3-test"
-asset="chowder-osx-arm64-${version}.app.tar.gz"
-url="https://github.com/advtuning/chowder-downloads/releases/download/v${version}/${asset}"
-sha256="bd70eb02cc8b9c75d512b572c538fc3b128fd6647ddd60cf3476d21d05ce58ad"
+version="0.2.0-test"
+asset="Chowder-Apple-Silicon-${version}.app.tar.gz"
+url="https://raw.githubusercontent.com/advtuning/chowder-downloads/main/${asset}"
+sha256="321a747122bc234689ad6a5a20c23a8f214de4e702ec5f530bdc4692788c7b37"
 
 [[ "$(uname -s)" == "Darwin" ]] || { echo "Chowder for macOS must be installed on a Mac." >&2; exit 1; }
 
@@ -31,8 +31,6 @@ is_apple_silicon || { echo "This build requires an Apple Silicon Mac." >&2; exit
 # Used only by the deterministic architecture checks in this repository.
 [[ "${CHOWDER_ARCH_CHECK_ONLY:-0}" == "1" ]] && exit 0
 
-# Verify Chowder before installing prerequisites so a missing release cannot leave
-# the Mac with a partial ClamAV-only installation.
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 echo "Downloading Chowder ${version}..."
@@ -40,48 +38,25 @@ curl -fL --retry 3 --output "$work/$asset" "$url"
 printf '%s  %s\n' "$sha256" "$work/$asset" | shasum -a 256 -c -
 tar -xzf "$work/$asset" -C "$work"
 
-binary="$work/Chowder.app/Contents/MacOS/chowder-gui"
-[[ -x "$binary" ]] || { echo "The Chowder application bundle is incomplete." >&2; exit 1; }
+binary="$work/Chowder.app/Contents/MacOS/chowder-macos"
+[[ -f "$binary" ]] || { echo "The Chowder application bundle is incomplete." >&2; exit 1; }
+chmod 0755 "$binary"
 file "$binary" | grep -q 'Mach-O 64-bit arm64' || { echo "The Chowder executable is not Apple Silicon." >&2; exit 1; }
 
-if ! command -v brew >/dev/null 2>&1; then
-  echo "Installing Homebrew..."
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+install_root="${CHOWDER_INSTALL_ROOT:-$HOME/Applications}"
+target="$install_root/Chowder.app"
+mkdir -p "$install_root"
+
+# This local test build is not Developer ID signed yet. Apply an ad-hoc signature only after the
+# pinned archive and native architecture have been verified.
+/usr/bin/codesign --force --deep --sign - "$work/Chowder.app"
+/usr/bin/codesign --verify --deep --strict "$work/Chowder.app"
+
+if [[ -e "$target" ]]; then
+  mv "$target" "$install_root/Chowder.app.backup-$(date +%Y%m%d%H%M%S)"
 fi
+/usr/bin/ditto "$work/Chowder.app" "$target"
+/usr/bin/xattr -dr com.apple.quarantine "$target" 2>/dev/null || true
 
-if ! brew list --versions clamav >/dev/null 2>&1; then
-  echo "Installing ClamAV..."
-  brew install clamav
-fi
-
-# Homebrew installs sample configuration but does not initialise the signature database.
-brew_prefix="$(brew --prefix)"
-clamav_conf_dir="$brew_prefix/etc/clamav"
-freshclam_conf="$clamav_conf_dir/freshclam.conf"
-freshclam_sample="$clamav_conf_dir/freshclam.conf.sample"
-database_dir="$brew_prefix/var/lib/clamav"
-mkdir -p "$clamav_conf_dir" "$database_dir"
-if [[ ! -f "$freshclam_conf" ]]; then
-  [[ -f "$freshclam_sample" ]] || { echo "ClamAV freshclam sample configuration was not installed." >&2; exit 1; }
-  cp "$freshclam_sample" "$freshclam_conf"
-  sed -i '' '/^[[:space:]]*Example[[:space:]]*$/d' "$freshclam_conf"
-fi
-if grep -Eq '^[[:space:]]*DatabaseDirectory[[:space:]]+' "$freshclam_conf"; then
-  sed -i '' "s#^[[:space:]]*DatabaseDirectory[[:space:]].*#DatabaseDirectory $database_dir#" "$freshclam_conf"
-else
-  printf '\nDatabaseDirectory %s\n' "$database_dir" >> "$freshclam_conf"
-fi
-echo "Initialising ClamAV signatures..."
-"$brew_prefix/bin/freshclam" --config-file="$freshclam_conf"
-
-echo "Installing Chowder in /Applications..."
-sudo rm -rf /Applications/Chowder.app
-sudo ditto "$work/Chowder.app" /Applications/Chowder.app
-
-# This test build is not yet Developer ID signed/notarised. Remove only the quarantine
-# attribute applied to this exact verified archive so Gatekeeper permits local testing.
-sudo xattr -dr com.apple.quarantine /Applications/Chowder.app 2>/dev/null || true
-
-echo "Chowder ${version} installed successfully."
-open /Applications/Chowder.app
+echo "Chowder ${version} installed in $target."
+open "$target"
