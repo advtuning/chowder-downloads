@@ -73,11 +73,12 @@ release gates; publication here does not claim those gates have passed.
 curl -fsSL https://raw.githubusercontent.com/advtuning/chowder-downloads/main/install-macos.sh | bash
 ```
 
-The installer accepts native Apple Silicon terminals and terminals running under Rosetta on Apple
-Silicon; it rejects Intel-only Macs. It downloads and verifies the dedicated `Chowder.Mac.App`
-bundle, installs it into `~/Applications`, applies a local ad-hoc test signature, and launches it.
-This milestone delivers the native GUI and installation path first. ClamAV setup, scanning and
-quarantine validation are later product milestones and are not claimed by this installer.
+The single installer accepts native Apple Silicon terminals and terminals running under Rosetta on
+Apple Silicon; it rejects Intel-only Macs. It downloads and verifies the dedicated
+`Chowder.Mac.App` bundle, installs or reuses native Homebrew and ClamAV, downloads current malware
+definitions into Chowder's managed database, performs a harmless real scan, installs the GUI into
+`~/Applications`, applies a local ad-hoc test signature, and launches it. It fails unless the GUI,
+engine and definitions are all ready.
 
 The archive's published [SHA-256 sidecar](https://raw.githubusercontent.com/advtuning/chowder-downloads/main/Chowder-Apple-Silicon-0.2.0-test.app.tar.gz.sha256)
 uses the same checksum enforced by the installer.
