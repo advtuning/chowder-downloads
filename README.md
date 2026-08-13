@@ -1,22 +1,7 @@
 # Chowder downloads
 
 Public test downloads for the Chowder malware-scanning GUI by Clarity Soft. These are prerelease
-evaluation builds. They are not production releases, and native validation is still in progress.
-
-## Apple Silicon DESK-003 cancellation diagnostic
-
-This temporary test-only bundle runs 17 named history/quarantine checks. Its four cancellation
-boundaries are separated so a native failure identifies the exact stage. It is not the Chowder
-application or a customer release.
-
-Run this on an Apple Silicon Mac:
-
-```bash
-d="$(mktemp -d "${TMPDIR:-/tmp}/chowder-desk003.XXXXXX")" && (trap 'rm -rf "$d"' EXIT HUP INT TERM; cd "$d" && curl -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz -fLO https://raw.githubusercontent.com/advtuning/chowder-downloads/main/chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz.sha256 && shasum -a 256 -c chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz.sha256 && mkdir run && tar -xzf chowder-desk003-cancellation-diagnostic-macos-arm64.tar.gz -C run && test "$(uname -m)" = arm64 && chmod 0700 run/chowder-desk003-native-tests && (xattr -d com.apple.quarantine run/chowder-desk003-native-tests 2>/dev/null || true) && run/chowder-desk003-native-tests)
-```
-
-The required result is `PASS 17/17`. The archive SHA-256 is
-`d0f0300928d4147d8009f9253c9a2889898ab21f26c80af1ecbcf3aa20399bc1`.
+evaluation builds. They are not production releases.
 
 ## Windows x64 portable GUI (`0.1.4-test`)
 
@@ -97,7 +82,8 @@ quarantine validation are later product milestones and are not claimed by this i
 The archive's published [SHA-256 sidecar](https://raw.githubusercontent.com/advtuning/chowder-downloads/main/Chowder-Apple-Silicon-0.2.0-test.app.tar.gz.sha256)
 uses the same checksum enforced by the installer.
 
-This is an unsigned and unnotarised test build. Public production distribution will replace it
-with a Developer ID-signed and Apple-notarised package. Physical Apple Silicon validation remains a
-release gate; the installer and published archive do not by themselves prove that gate complete.
-
+This exact public installer and archive were verified on a physical Apple Silicon iMac: checksum,
+installation into `~/Applications/Chowder.app`, ad-hoc signature verification, launch and a live
+native `chowder-macos` process all passed. This is still an unsigned and unnotarised test build;
+public production distribution will replace it with a Developer ID-signed and Apple-notarised
+package.
