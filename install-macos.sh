@@ -124,6 +124,7 @@ initialize_definitions
 
 install_root="${CHOWDER_INSTALL_ROOT:-$HOME/Applications}"
 target="$install_root/Chowder.app"
+process_path="$target/Contents/MacOS/chowder-macos"
 mkdir -p "$install_root"
 
 # This local test build is not Developer ID signed yet. Apply an ad-hoc signature only after the
@@ -133,14 +134,34 @@ mkdir -p "$install_root"
 
 if [[ -e "$target" ]]; then
   /usr/bin/osascript -e 'tell application id "com.chowderav.Chowder" to quit' 2>/dev/null || true
+  for _ in {1..20}; do
+    pgrep -f "$process_path" >/dev/null 2>&1 || break
+    sleep 0.25
+  done
+  pgrep -f "$process_path" >/dev/null 2>&1 && {
+    echo "The running Chowder application did not close; installation was not replaced." >&2
+    exit 1
+  }
   mv "$target" "$install_root/Chowder.app.backup-$(date +%Y%m%d%H%M%S)"
 fi
 /usr/bin/ditto "$work/Chowder.app" "$target"
 /usr/bin/xattr -dr com.apple.quarantine "$target" 2>/dev/null || true
 /usr/bin/codesign --verify --deep --strict "$target"
 
+/usr/bin/caffeinate -u -t 15 >/dev/null 2>&1 &
+open -n "$target"
+for _ in {1..20}; do
+  pgrep -f "$process_path" >/dev/null 2>&1 && break
+  sleep 0.5
+done
+launch_pid="$(pgrep -f "$process_path" | tail -n 1 || true)"
+[[ -n "$launch_pid" ]] || {
+  echo "Chowder was installed but its GUI did not remain running." >&2
+  exit 1
+}
+
 echo "Chowder ${version} installed in $target."
 echo "ClamAV ready: $clamav_version"
 echo "Definitions ready in $definitions."
 echo "Clean-file and harmless EICAR detection self-tests passed."
-open "$target"
+echo "Chowder GUI launched as process $launch_pid."
