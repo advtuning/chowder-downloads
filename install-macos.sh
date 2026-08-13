@@ -41,7 +41,7 @@ tar -xzf "$work/$asset" -C "$work"
 binary="$work/Chowder.app/Contents/MacOS/chowder-macos"
 [[ -f "$binary" ]] || { echo "The Chowder application bundle is incomplete." >&2; exit 1; }
 chmod 0755 "$binary"
-file "$binary" | grep -q 'Mach-O 64-bit arm64' || { echo "The Chowder executable is not Apple Silicon." >&2; exit 1; }
+file "$binary" | grep -Eq 'Mach-O 64-bit .*arm64' || { echo "The Chowder executable is not Apple Silicon." >&2; exit 1; }
 
 install_root="${CHOWDER_INSTALL_ROOT:-$HOME/Applications}"
 target="$install_root/Chowder.app"
